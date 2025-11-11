@@ -64,7 +64,36 @@ app.post('/api/users', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+app.delete('/api/users/:username', async (req, res) => {
+  try {
+    const username = req.params.username;
+   const deletedUser = await User.findOneAndDelete({ username });
 
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }   
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }     
+});
+app.patch('/api/users/:username', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const { name, phone, email, password, role } = req.body;    
+    const updatedUser = await User.findOneAndUpdate(
+      { username },
+      { name, phone, email, password, role },
+      { new: true }
+    );  
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User updated successfully', user: updatedUser });
+    } catch (error) {   
+    res.status(500).json({ message: 'Server error', error: error.message });
+    }   
+});
 
 
 app.listen(port, () => {
